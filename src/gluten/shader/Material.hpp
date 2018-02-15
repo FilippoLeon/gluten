@@ -35,8 +35,11 @@ public:
             i++;
         }
 
-
-        shader.SetLight(light);
+        int l = 0;
+        for (auto light : lights) {
+            shader.SetLight(light, l++);
+        }
+        shader.SetLight(nullptr, l);
 
         if (textured) {
             shader.SetUniformLocation("material.diffuse", 0);
@@ -56,7 +59,7 @@ public:
 
     float shininess = 32.0f;
 
-    camera::Light light;
+    std::vector<std::shared_ptr<camera::Light>> lights;
 
     std::vector<std::shared_ptr<texture::ITexture>> textures;
 

@@ -103,6 +103,10 @@ public:
         std::cout << position.x << "," << position.y << "," << position.z << std::endl;
     }
 
+    glm::vec3 Forward() {
+        return glm::transpose(glm::toMat3(rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
+    }
+
     virtual glm::mat4 GetMatrix() = 0;
 public:
     glm::vec3 position;

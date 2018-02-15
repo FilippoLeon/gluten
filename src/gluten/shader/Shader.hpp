@@ -190,11 +190,22 @@ public:
                                                                   );
     }
 
-    void SetLight(camera::Light & light) {
-        SetUniformLocation("light.ambientColor", light.ambientColor);
-        SetUniformLocation("light.diffuseColor", light.diffuseColor);
-        SetUniformLocation("light.specularColor", light.specularColor);
-        SetUniformLocation("light.position", light.position);
+    void SetLight(std::shared_ptr<camera::Light> light, int i) {
+        std::string is = std::to_string(i);
+
+        if (light == nullptr) {
+            SetUniformLocation("lights[" + is + "].type", -1);
+            return;
+        }
+        SetUniformLocation("lights[" + is + "].ambientColor", light->ambientColor);
+        SetUniformLocation("lights[" + is + "].diffuseColor", light->diffuseColor);
+        SetUniformLocation("lights[" + is + "].specularColor", light->specularColor);
+
+        SetUniformLocation("lights[" + is + "].position", light->position);
+        SetUniformLocation("lights[" + is + "].direction", light->direction);
+        SetUniformLocation("lights[" + is + "].cutoff", light->cutoff);
+        SetUniformLocation("lights[" + is + "].type", light->type);
+        SetUniformLocation("lights[" + is + "].fade", light->fade);
     }
 
 private:
