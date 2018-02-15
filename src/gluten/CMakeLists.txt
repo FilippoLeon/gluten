@@ -31,4 +31,8 @@ file(GLOB SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/shader/examples/*")
 file(COPY ${SHADERS} DESTINATION "${CMAKE_BINARY_DIR}/shader/examples/")
 message(STATUS "Copied shaders ${SHADERS} to ${CMAKE_BINARY_DIR}/shader/examples/")
 
+add_custom_command(TARGET gluten PRE_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy ${SHADERS} "${CMAKE_BINARY_DIR}/shader/examples/"
+)
+
 export(TARGETS gluten glad glfw glm fmt-header-only FILE GlutenLib.cmake)

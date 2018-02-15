@@ -11,8 +11,11 @@
 #include <string>
 
 #include "gluten/debug/log.hpp"
+#include "gluten/debug/exceptions.hpp"
 #include "gluten/osutils/pathutils.hpp"
 #include "gluten/utils/glm.hpp"
+
+#include "gluten/camera/Light.hpp"
 
 namespace gluten::shader {
 
@@ -36,10 +39,20 @@ private:
 template <class Derived>
 class Shader {
 public:
-    Shader(std::string filename) {
+    Shader(std::string filename) : Shader({}, filename) {
+    }
+
+    std::vector<std::string> defines;
+
+    Shader(std::initializer_list<std::string> defines, std::string filename) {
         if (std::string ext = osutils::GetExtension(filename); ext != Derived::extension) {
             debug::LogWarning("Extension {} does not match propery Shader extension {}", 
                               ext, Derived::extension);
+        }
+
+        this->defines.push_back("#version 330 core\n");
+        for (const std::string & d: defines) {
+            this->defines.push_back("#define " + d + "\n");
         }
 
         shader_id = glCreateShader(Derived::shader_type);
@@ -47,9 +60,9 @@ public:
         std::ifstream stream(filename);
         if (!stream.is_open()) {
 #if USE_FMT
-            throw std::runtime_error(fmt::format("Could not open file '{}'.", filename));
+            throw debug::RuntimeException(fmt::format("Could not open file '{}'.", filename));
 #else 
-            throw std::runtime_error("Cannot open file.");
+            throw debug::RuntimeException("Cannot open file.");
 #endif
         }
         std::string source;
@@ -62,7 +75,18 @@ public:
                        std::istreambuf_iterator<char>());
 
         const char * str_arr = source.c_str();
-        glShaderSource(shader_id, 1, &str_arr, nullptr);
+        if (this->defines.size() > 0) {
+            std::vector<const char *> strs;
+            strs.reserve(this->defines.size() + 1);
+            for (std::string & d : this->defines) {
+                strs.push_back(d.c_str());
+            }
+            strs.push_back(str_arr);
+
+            glShaderSource(shader_id, strs.size(), strs.data(), nullptr);
+        } else {
+            glShaderSource(shader_id, 1, &str_arr, nullptr);
+        }
         glCompileShader(shader_id); 
         
         int  success;
@@ -75,9 +99,9 @@ public:
 #if USE_FMT
             std::string msg = fmt::format("Error while compiling shader '{}':\n{}", 
                                           filename, error_string);
-            throw std::runtime_error(msg);
+            throw debug::RuntimeException(msg);
 #else 
-            throw std::runtime_error("Cannot compile shader.");
+            throw debug::RuntimeException("Cannot compile shader:\n" + std::string(error_string));
 #endif
         }
     }
@@ -99,6 +123,9 @@ public:
     static constexpr char * extension = "vs";
     static constexpr GLenum shader_type = GL_VERTEX_SHADER;
 
+    VertexShader(std::initializer_list<std::string> defines,
+                 std::string filename) : Shader<VertexShader>(defines, filename) {}
+
     VertexShader(std::string filename) : Shader<VertexShader>(filename) {}
 };
 
@@ -108,6 +135,9 @@ public:
 
     static constexpr char * extension = "fs";
     static constexpr GLenum shader_type = GL_FRAGMENT_SHADER;
+
+    FragmentShader(std::initializer_list<std::string> defines,
+                   std::string filename) : Shader<FragmentShader>(defines, filename) {}
 
     FragmentShader(std::string filename) : Shader<FragmentShader>(filename) {}
 };
@@ -129,9 +159,9 @@ public:
 
 #if USE_FMT
             std::string msg = fmt::format("Error while linking shader:\n{}", error_string);
-            throw std::runtime_error(msg);
+            throw debug::RuntimeException(msg);
 #else 
-            throw std::runtime_error("Cannot compile shader.");
+            throw debug::RuntimeException("Cannot link shader:\n" + std::string(error_string));
 #endif
         }
     }
@@ -158,6 +188,13 @@ public:
                                                                   utils::glm::get_data(val), 
                                                                   utils::glm::get_vector_type<T>()
                                                                   );
+    }
+
+    void SetLight(camera::Light & light) {
+        SetUniformLocation("light.ambientColor", light.ambientColor);
+        SetUniformLocation("light.diffuseColor", light.diffuseColor);
+        SetUniformLocation("light.specularColor", light.specularColor);
+        SetUniformLocation("light.position", light.position);
     }
 
 private:

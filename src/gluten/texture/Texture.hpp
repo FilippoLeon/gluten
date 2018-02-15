@@ -6,8 +6,17 @@
 
 namespace gluten::texture {
 
+class ITexture {
+public:
+    virtual void Bind(unsigned int unit = 0) = 0;
+
+    static void Unbind() {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+};
+
 template <class TextureLoader = STBTextureLoader>
-class Texture {
+class Texture : public ITexture {
     unsigned int texture_id;
 public:
     Texture(std::string filename) {
@@ -20,7 +29,7 @@ public:
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
-    void Bind(unsigned int unit = 0) {
+    virtual void Bind(unsigned int unit = 0) {
         glActiveTexture(GL_TEXTURE0 + unit);
         glBindTexture(GL_TEXTURE_2D, texture_id);
     }
