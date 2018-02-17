@@ -5,7 +5,16 @@ add_library(gluten ${SOURCES})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-target_include_directories(gluten PRIVATE "${CMAKE_SOURCE_DIR}/freetype-2.9/include")
+if(FREETYPE_FOUND)
+	target_include_directories(gluten PRIVATE "${FREETYPE_INCLUDE_DIR_ft2build}")
+else()
+	target_include_directories(gluten PRIVATE "${CMAKE_SOURCE_DIR}/freetype-2.9/include")
+endif()
+
+# Support for experimental filesystem
+if(${CMAKE_CXX_COMPILER_ID} STREQUA "GNU")
+	target_link_libraries(gluten PRIVATE stdc++fs)
+endif()
 
 get_filename_component(CURRENT_DIRECTORY_PARENT ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
 #target_include_directories(gluten PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -39,4 +48,4 @@ add_custom_command(TARGET gluten PRE_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy ${SHADERS} "${CMAKE_BINARY_DIR}/shader/examples/"
 )
 
-export(TARGETS gluten glad glfw glm fmt-header-only freetype FILE GlutenLib.cmake)
+# export(TARGETS gluten glad glfw glm fmt-header-only freetype FILE GlutenLib.cmake)

@@ -36,7 +36,7 @@ Font::Font(std::string filename, shader::ShaderProgram & shader , int height)
             continue;
         }
 
-        int texture;
+        unsigned int texture;
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -47,10 +47,10 @@ Font::Font(std::string filename, shader::ShaderProgram & shader , int height)
             face->glyph->advance.x
         };
 
-        glTexImage2( GL_TEXTURE_2D, 0, GL_RED,
-                    character.width, character.rows,
-                    0, GL_RED, GL_UNSIGNED_BYTE, character.buffer
-        );
+//        glTexImage2(GL_TEXTURE_2D, 0, GL_RED,
+//                    character.width, character.height,
+//                    0, GL_RED, GL_UNSIGNED_BYTE,
+//        );
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -73,44 +73,44 @@ Font::~Font() {
     }
 }
 
-Font::draw(std::string text, base::Color color) {
+void Font::Draw(std::string text, base::Color color) {
     //void RenderText(Shader &s, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
-    s.Use();
-    s.Uniform("textColor", color);
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO);
-
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++) {
-        Character ch = Characters[*c];
-
-        GLfloat xpos = x + ch.Bearing.x * scale;
-        GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-
-        GLfloat w = ch.Size.x * scale;
-        GLfloat h = ch.Size.y * scale;
-
-        GLfloat vertices[6][4] = {
-            { xpos,     ypos + h,   0.0, 0.0 },
-        { xpos,     ypos,       0.0, 1.0 },
-        { xpos + w, ypos,       1.0, 1.0 },
-
-        { xpos,     ypos + h,   0.0, 0.0 },
-        { xpos + w, ypos,       1.0, 1.0 },
-        { xpos + w, ypos + h,   1.0, 0.0 }
-        };
-
-        glBindTexture(GL_TEXTURE_2D, ch.texture_id);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-            
-        x += (ch.Advance >> 6) * scale;
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+//    s.Use();
+//    s.Uniform("textColor", color);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindVertexArray(VAO);
+//
+//    std::string::const_iterator c;
+//    for (c = text.begin(); c != text.end(); c++) {
+//        Character ch = Characters[*c];
+//
+//        GLfloat xpos = x + ch.Bearing.x * scale;
+//        GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+//
+//        GLfloat w = ch.Size.x * scale;
+//        GLfloat h = ch.Size.y * scale;
+//
+//        GLfloat vertices[6][4] = {
+//            { xpos,     ypos + h,   0.0, 0.0 },
+//        { xpos,     ypos,       0.0, 1.0 },
+//        { xpos + w, ypos,       1.0, 1.0 },
+//
+//        { xpos,     ypos + h,   0.0, 0.0 },
+//        { xpos + w, ypos,       1.0, 1.0 },
+//        { xpos + w, ypos + h,   1.0, 0.0 }
+//        };
+//
+//        glBindTexture(GL_TEXTURE_2D, ch.texture_id);
+//
+//        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        glDrawArrays(GL_TRIANGLES, 0, 6);
+//
+//        x += (ch.Advance >> 6) * scale;
+//    }
+//    glBindVertexArray(0);
+//    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 }

@@ -120,7 +120,7 @@ class VertexShader : Shader<VertexShader> {
 public:
     friend class ShaderProgram;
 
-    static constexpr char * extension = "vs";
+    static constexpr const char * extension = "vs";
     static constexpr GLenum shader_type = GL_VERTEX_SHADER;
 
     VertexShader(std::initializer_list<std::string> defines,
@@ -133,7 +133,7 @@ class FragmentShader : Shader<FragmentShader> {
 public:
     friend class ShaderProgram;
 
-    static constexpr char * extension = "fs";
+    static constexpr const char * extension = "fs";
     static constexpr GLenum shader_type = GL_FRAGMENT_SHADER;
 
     FragmentShader(std::initializer_list<std::string> defines,

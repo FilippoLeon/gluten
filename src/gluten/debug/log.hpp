@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <fmt/format.h>
+
 namespace gluten::debug {
 
 enum class LogLevel {
@@ -16,7 +18,7 @@ enum class LogLevel {
 };
 
 #ifndef  LOG_LEVEL
-#define LOG_LEVEL LogLevel::errror
+#define LOG_LEVEL LogLevel::error
 #endif // ! LOG_LEVEL
 
 const std::vector<std::string> PRESTRING = {

@@ -5,6 +5,8 @@
 
 #include "gluten/shader/Shader.hpp"
 
+#include "gluten/base/Color.hpp"
+
 namespace gluten::fonts {
 
 struct Character {
@@ -18,6 +20,7 @@ public:
 
     ~Font();
 
+    void Draw(std::string text, base::Color color);
 
 private:
     static bool freetype_isinit;
@@ -26,10 +29,6 @@ private:
     std::map<char, Character> charmap;
 
     shader::ShaderProgram & shader;
-};
-
-class Character {
-
 };
 
 }

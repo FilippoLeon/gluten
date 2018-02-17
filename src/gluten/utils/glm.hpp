@@ -12,21 +12,21 @@ template <typename T>
 constexpr std::tuple<int, int> get_vec_size() {
     if constexpr ( std::is_arithmetic_v<T> ) {
         return { 1, 1 };
-    } else if constexpr ( std::is_same_v<::glm::tvec1<T::value_type>, T>) {
+    } else if constexpr ( std::is_same_v<::glm::tvec1<typename T::value_type>, T>) {
         return { 1, 1 };
-    } else if constexpr ( std::is_same_v<::glm::tvec2<T::value_type>, T>) {
+    } else if constexpr ( std::is_same_v<::glm::tvec2<typename T::value_type>, T>) {
         return { 2, 1 };
-    } else if constexpr ( std::is_same_v<::glm::tvec3<T::value_type>, T>) {
+    } else if constexpr ( std::is_same_v<::glm::tvec3<typename T::value_type>, T>) {
         return { 3, 1 };
-    } else if constexpr (std::is_same_v<::glm::tvec4<T::value_type>, T>) {
+    } else if constexpr (std::is_same_v<::glm::tvec4<typename T::value_type>, T>) {
         return { 4, 1 };
-    } else if constexpr (std::is_same_v<::glm::tmat2x2<T::value_type>, T>) {
+    } else if constexpr (std::is_same_v<::glm::tmat2x2<typename T::value_type>, T>) {
         return { 2, 2 };
-    } else if constexpr (std::is_same_v<::glm::tmat3x3<T::value_type>, T>) {
+    } else if constexpr (std::is_same_v<::glm::tmat3x3<typename T::value_type>, T>) {
         return { 3, 3 };
-    } else if constexpr (std::is_same_v<::glm::tmat4x4<T::value_type>, T>) {
+    } else if constexpr (std::is_same_v<::glm::tmat4x4<typename T::value_type>, T>) {
         return { 4, 4 };
-    } else if constexpr (std::is_same_v<::glm::tmat3x4<T::value_type>, T>) {
+    } else if constexpr (std::is_same_v<::glm::tmat3x4<typename T::value_type>, T>) {
         return { 3, 4 };
     } else {
         return get_vec_size<T::value_type>();
@@ -35,33 +35,47 @@ constexpr std::tuple<int, int> get_vec_size() {
 
 template <typename T>
 constexpr bool is_glm_vector() {
-    return std::is_same_v<::glm::tvec1<T::value_type>, T> ||
-           std::is_same_v<::glm::tvec2<T::value_type>, T> ||
-           std::is_same_v<::glm::tvec3<T::value_type>, T> ||
-           std::is_same_v<::glm::tvec4<T::value_type>, T>;
+    if constexpr (std::is_fundamental_v<T>) {
+        return false;
+    } else {
+        return std::is_same_v<::glm::tvec1<typename T::value_type>, T> ||
+               std::is_same_v<::glm::tvec2<typename T::value_type>, T> ||
+               std::is_same_v<::glm::tvec3<typename T::value_type>, T> ||
+               std::is_same_v<::glm::tvec4<typename T::value_type>, T>;
+    }
 }
 
 template <typename T>
 constexpr bool is_glm_matrix() {
-    return std::is_same_v<::glm::tmat2x2<T::value_type>, T> ||
-           std::is_same_v<::glm::tmat3x3<T::value_type>, T> ||
-           std::is_same_v<::glm::tmat4x4<T::value_type>, T> ||
-           std::is_same_v<::glm::tmat3x4<T::value_type>, T>;
+    if constexpr (std::is_fundamental_v<T>) {
+        return false;
+    } else {
+        return std::is_same_v<::glm::tmat2x2<typename T::value_type>, T> ||
+               std::is_same_v<::glm::tmat3x3<typename T::value_type>, T> ||
+               std::is_same_v<::glm::tmat4x4<typename T::value_type>, T> ||
+               std::is_same_v<::glm::tmat3x4<typename T::value_type>, T>;
+    }
 }
 
-template <template<typename> typename C, typename T = C::value_type>
-constexpr bool is_allowed_container() {
-    return std::is_same_v<std::vector<T>, C<T>>;
-}
+template <typename Test, template<class...> class Ref>
+struct is_instance_of : std::false_type {};
+
+template <template<class...> class Ref, class... Args>
+struct is_instance_of<Ref<Args...>, Ref> : std::true_type {};
 
 template <typename C>
 constexpr bool is_allowed_container() {
-    return false;
+    return is_instance_of<C, std::vector>::value;
 }
+
 
 template <typename T>
 constexpr bool is_glm_fundamental() {
-    return is_glm_vector<T>() || is_glm_matrix<T>();
+    if constexpr(std::is_fundamental_v<T>) {
+        return false;
+    } else {
+        return is_glm_vector<T>() || is_glm_matrix<T>();
+    }
 }
 
 template <typename T>
