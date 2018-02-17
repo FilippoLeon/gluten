@@ -25,10 +25,12 @@ public:
 
     void Draw(camera::Camera & camera) {
         glm::mat4 transform = camera.GetMatrix();
+        glm::mat4 projection = camera.GetProjectionMatrix();
 
         for (int i = 0; i < sub_models; ++i) {
             materials[i].Use(camera);
 
+            materials[i].GetShader().SetUniformLocation("projection", projection);
             materials[i].GetShader().SetUniformLocation("transform", transform);
             materials[i].GetShader().SetUniformLocation("modelView", GetMatrix());
             materials[i].GetShader().SetUniformLocation("jacobianTransform", GetJacobian());

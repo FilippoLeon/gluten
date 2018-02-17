@@ -36,28 +36,28 @@ public:
         glm::mat3 rot = glm::transpose(glm::toMat3(rotation));
         // Move somewhere else
         if (glfwGetKey(window.get(), GLFW_KEY_UP) == GLFW_PRESS
-            || glfwGetKey(window.get(), GLFW_KEY_UP) == GLFW_REPEAT) {
-            position += translateSpeed * rot * glm::vec3(0.0f, 1.0f, 0.0f);
+            || glfwGetKey(window.get(), GLFW_KEY_W) == GLFW_PRESS) {
+            position -= translateSpeed * rot * glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if ( glfwGetKey(window.get(), GLFW_KEY_DOWN) == GLFW_PRESS
-            || glfwGetKey(window.get(), GLFW_KEY_DOWN) == GLFW_REPEAT) {
-            position -= translateSpeed * rot * glm::vec3(0.0f, 1.0f, 0.0f);
+            || glfwGetKey(window.get(), GLFW_KEY_S) == GLFW_PRESS) {
+            position += translateSpeed * rot * glm::vec3(0.0f, 0.0f, 1.0f);
         }
         if (glfwGetKey(window.get(), GLFW_KEY_LEFT) == GLFW_PRESS
-                   || glfwGetKey(window.get(), GLFW_KEY_LEFT) == GLFW_REPEAT) {
+                   || glfwGetKey(window.get(), GLFW_KEY_A) == GLFW_PRESS) {
             position -= translateSpeed * rot * glm::vec3(1.0f, 0.0f, 0.0f);
         }
         if (glfwGetKey(window.get(), GLFW_KEY_RIGHT) == GLFW_PRESS
-                   || glfwGetKey(window.get(), GLFW_KEY_RIGHT) == GLFW_REPEAT) {
+                   || glfwGetKey(window.get(), GLFW_KEY_D) == GLFW_PRESS) {
             position += translateSpeed * rot * glm::vec3(1.0f, 0.0f, 0.0f);
         }
         if (glfwGetKey(window.get(), GLFW_KEY_PAGE_UP) == GLFW_PRESS
-                   || glfwGetKey(window.get(), GLFW_KEY_R) == GLFW_REPEAT) {
-            position -= zoomSpeed * rot * glm::vec3(0.0f, 0.0f, 1.0f);
+                   || glfwGetKey(window.get(), GLFW_KEY_T) == GLFW_PRESS) {
+            position += translateSpeed * rot * glm::vec3(0.0f, 1.0f, 0.0f);
         }
         if (glfwGetKey(window.get(), GLFW_KEY_PAGE_DOWN) == GLFW_PRESS
-                   || glfwGetKey(window.get(), GLFW_KEY_F) == GLFW_REPEAT) {
-            position += zoomSpeed * rot * glm::vec3(0.0f, 0.0f, 1.0f);
+                   || glfwGetKey(window.get(), GLFW_KEY_G) == GLFW_PRESS) {
+            position -= translateSpeed * rot * glm::vec3(0.0f, 1.0f, 0.0f);
         }
         // YAW (y-coord normal)
         if (glfwGetKey(window.get(), GLFW_KEY_Q) == GLFW_PRESS) {
@@ -108,6 +108,7 @@ public:
     }
 
     virtual glm::mat4 GetMatrix() = 0;
+    virtual glm::mat4 GetProjectionMatrix() = 0;
 public:
     glm::vec3 position;
     glm::quat rotation;
@@ -132,11 +133,29 @@ public:
         glm::mat4 viewMat = glm::translate(glm::mat4(), -position);
         return glm::perspective(fov, AspectRatio(), distMin, distMax) * glm::toMat4(rotation) * viewMat;
     }
+
+    virtual glm::mat4 GetProjectionMatrix() {
+        //glm::mat4 viewMat; // = glm::translate(glm::mat4(), -position);
+        return glm::perspective(fov, AspectRatio(), distMin, distMax) * glm::toMat4(rotation);
+    }
 private:
     float fov = glm::radians(45.0f);
 };
 
 class CameraOrthographic : public  Camera {
+    CameraOrthographic(const base::Window & win, 
+                       Rectangle viewportRect = Rectangle())
+        : Camera(win, viewportRect) {}
+
+    virtual glm::mat4 GetMatrix() {
+        glm::mat4 viewMat = glm::translate(glm::mat4(), -position);
+        return  GetProjectionMatrix() * glm::toMat4(rotation) * viewMat;
+    }
+
+    virtual glm::mat4 GetProjectionMatrix() {
+        return glm::ortho(0.0f, (float) window.Height(), 
+                          0.0f, (float) window.Width());
+    }
 
     float size;
 };

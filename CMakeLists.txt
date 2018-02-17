@@ -24,4 +24,7 @@ add_subdirectory(${GLM_ROOT})
 set(FMT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/fmt")
 add_subdirectory(${FMT_ROOT} EXCLUDE_FROM_ALL)
 
+set(FREETYPE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/freetype-2.9")
+add_subdirectory(${FREETYPE_ROOT})
+
 add_subdirectory(src)

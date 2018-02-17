@@ -29,10 +29,11 @@ public:
         for (auto tex : textures) {
             if (tex != nullptr) {
                 tex->Bind(i);
-            } else {
-                texture::ITexture::Unbind();
             }
             i++;
+        }
+        if (textures[0] == nullptr) {
+            texture::ITexture::Unbind();
         }
 
         int l = 0;

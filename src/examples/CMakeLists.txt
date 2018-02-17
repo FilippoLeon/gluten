@@ -7,7 +7,7 @@ macro(add_example source)
 	set_property(TARGET ${name} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 	target_link_libraries(${name} PRIVATE gluten)
-endmacro()
+endmacro() 
 
 file(GLOB EXAMPLES "*.cpp")
 foreach(EX ${EXAMPLES})
