@@ -41,10 +41,13 @@ else()
     message(STATUS "Found Freetype inlcude at ${FREETYPE_INCLUDE_DIR_freetype2}")
 endif(NOT Freetype_FOUND)
 
+### COMPILER SPECIFIC FLAGS
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     add_definitions(-Wall -Wextra -pedantic)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     add_definitions(-Wall -Wextra -pedantic)
+    # Fix for experimental folder
+    add_definitions(-DEXPERIMENTAL_FILESYSTEM)
 endif()
 
 add_subdirectory(src)

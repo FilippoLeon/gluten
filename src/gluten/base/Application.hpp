@@ -1,8 +1,11 @@
 #pragma once
 
 #include <stdexcept>
-//#include <filesystem>
-#include <experimental/filesystem>
+#ifdef EXPERIMENTAL_FILESYSTEM
+    #include <experimental/filesystem>
+#else
+    #include <filesystem>
+#endif
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

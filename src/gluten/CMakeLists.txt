@@ -6,14 +6,17 @@ add_library(gluten ${SOURCES})
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(FREETYPE_FOUND)
+	## Fix for find_package(Freetype)
 	target_include_directories(gluten PRIVATE "${FREETYPE_INCLUDE_DIR_ft2build}")
 else()
+	## Fix for CMakeLists.txt in freetype-2.9
 	target_include_directories(gluten PRIVATE "${CMAKE_SOURCE_DIR}/freetype-2.9/include")
 endif()
 
-# Support for experimental filesystem
-if(${CMAKE_CXX_COMPILER_ID} STREQUA "GNU")
-	target_link_libraries(gluten PRIVATE stdc++fs)
+# Support for experimental filesystem in gcc < 8
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+	message(STATUS "Filesystem library under 'experimental'")
+	target_link_libraries(gluten PUBLIC stdc++fs)
 endif()
 
 get_filename_component(CURRENT_DIRECTORY_PARENT ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
