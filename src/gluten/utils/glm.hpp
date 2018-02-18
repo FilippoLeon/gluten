@@ -22,6 +22,12 @@ constexpr bool is_allowed_container() {
     return is_instance_of<C, std::vector>::value;
 }
 
+template <class T>
+struct is_std_array : std::false_type {};
+
+template <class T, unsigned int N>
+struct is_std_array<std::array<T,N>> : std::true_type {};
+
 template <typename T>
 constexpr std::tuple<int, int> get_vec_size() {
     if constexpr ( std::is_same_v<T, base::Color> ) {
@@ -44,15 +50,12 @@ constexpr std::tuple<int, int> get_vec_size() {
         return { 4, 4 };
     } else if constexpr (std::is_same_v<::glm::tmat3x4<typename T::value_type>, T>) {
         return { 3, 4 };
+    } else if constexpr (is_std_array <T>::value) {
+        return { std::tuple_size<T>::value, 1 };
     } else {
-        return get_vec_size<t<typename T::value_type>();
+        return get_vec_size<typename T::value_type>();
     }
 }
-
-//template <typename T, unsigned int N>
-//constexpr std::tuple<int, int> get_vec_size<std::array<T, N>>() {
-//
-//};
 
 template <typename T>
 constexpr bool is_glm_vector() {
@@ -113,6 +116,11 @@ struct vec_value_type_helper<base::Color, true, false> {
     using type = float;
 };
 
+template <typename T, unsigned int N>
+struct vec_value_type_helper<std::array<T, N>, false, false> {
+    using type = T;
+};
+
 template <typename T>
 using vec_value_type = typename vec_value_type_helper<T, std::is_arithmetic_v<T>
                                                          || std::is_same_v<T, base::Color>, is_glm_fundamental<T>()>::type;
@@ -130,7 +138,10 @@ const auto* get_data(const T & vec) {
 
 template <typename T>
 int get_count(const T & val) {
-    if constexpr(std::is_arithmetic_v<T> || is_glm_fundamental<T>() ) {
+    if constexpr(std::is_arithmetic_v<T> 
+                 || is_glm_fundamental<T>() 
+                 || std::is_same_v<T, base::Color> 
+                 || is_std_array<T>::value ) {
         return 1;
     } else {
         return val.size();
@@ -143,11 +154,10 @@ template <EnumVectorType vt>
 struct VectorType { };
 
 template <typename T>
-using get_vector_type = std::conditional_t<std::is_arithmetic_v<T> ||
-                                           is_glm_vector<T>() || is_allowed_container<T>(),
-                                           VectorType<EnumVectorType::Vector>,
-                                           VectorType<EnumVectorType::Matrix>>;
-
+using get_vector_type = std::conditional_t<is_glm_matrix<T>(),
+                                           VectorType<EnumVectorType::Matrix>,
+                                           VectorType<EnumVectorType::Vector>
+                                           >;
 
 template <unsigned int sizex, unsigned int sizey>
 inline void Uniform(int loc, int count, const float * data, 

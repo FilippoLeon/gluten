@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
+#if USE_FMT
 #include <fmt/format.h>
+#endif
 
 namespace gluten::debug {
 

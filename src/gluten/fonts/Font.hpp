@@ -36,7 +36,7 @@ private:
 
     shader::ShaderProgram & shader;
 
-    std::unique_ptr<geometry::Mesh> mesh;
+    geometry::Mesh mesh;
 };
 
 }

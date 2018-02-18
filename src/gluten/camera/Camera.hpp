@@ -143,10 +143,11 @@ private:
 };
 
 class CameraOrthographic : public  Camera {
+public:
     CameraOrthographic(const base::Window & win, 
                        Rectangle viewportRect = Rectangle())
         : Camera(win, viewportRect) {}
-public:
+
     virtual glm::mat4 GetMatrix() {
         glm::mat4 viewMat = glm::translate(glm::mat4(), -position);
         return  GetProjectionMatrix() * glm::toMat4(rotation) * viewMat;
@@ -154,7 +155,7 @@ public:
 
     virtual glm::mat4 GetProjectionMatrix() {
         return glm::ortho(0.0f, (float) window.Height(), 
-                          0.0f, (float) window.Width());
+                          0.0f, (float) window.Width(), -1.0f, 1.0f);
     }
 
     float size;

@@ -1,8 +1,9 @@
 #include "Font.hpp"
 
 #include <ft2build.h>
-#include <geometry/Mesh.hpp>
 #include FT_FREETYPE_H 
+
+#include "gluten/geometry/Mesh.hpp"
 
 #include "gluten/debug/exceptions.hpp"
 
@@ -15,7 +16,7 @@ bool Font::freetype_isinit = false;
 FT_Library freetype_lib;
 
 Font::Font(std::string filename, shader::ShaderProgram & shader , int height)
-    : shader(shader) {
+    : shader(shader), mesh(geometry::Plane({ 0, 0, 1 })) {
     if (!freetype_isinit) {
         if (FT_Init_FreeType(&freetype_lib)) {
             throw debug::RuntimeException("Could't init FreeType!");
@@ -33,7 +34,7 @@ Font::Font(std::string filename, shader::ShaderProgram & shader , int height)
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    for (char c = 0; c < 128; c++) {
+    for (char c = 0; c < 127; c++) {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
             throw debug::RuntimeException("Could't load char {}!" + (int) c);
         }
@@ -54,7 +55,6 @@ Font::Font(std::string filename, shader::ShaderProgram & shader , int height)
                     0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer
         );
 
-        mesh = std::make_unique<geometry::Mesh>(geometry::Plane({0, 1, 1}));
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -82,25 +82,31 @@ void Font::Draw(camera::CameraOrthographic cam, std::string text,
     //void RenderText(Shader &s, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
     shader.Use();
     shader.SetUniformLocation("textColor", color);
-    shader.SetUniformLocation("projection", cam.GetProjectionMatrix());
+
+    glm::mat4 proj = cam.GetProjectionMatrix();
+    shader.SetUniformLocation("projection", proj);
     glActiveTexture(GL_TEXTURE0);
-    mesh->Bind();
+    mesh.Bind();
 
     std::string::const_iterator c;
     for (c = text.begin(); c != text.end(); c++) {
         Character ch = charmap[*c];
 
         std::array<float, 2> local_pos = {
-            pos[0] + ch.width * scale,
-            pos[1] - (ch.top - ch.height) * scale
+            pos[0] + ch.left * scale,
+            pos[1] + (ch.top - ch.height) * scale
         };
 
-        std::array<float, 2> size = { ch.width * scale,  ch.height * scale};
+        std::array<float, 2> size = { 
+            ch.width * scale,  
+            ch.height * scale
+        };
 
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, ch.texture_id);
         shader.SetUniformLocation("position", local_pos);
         shader.SetUniformLocation("size", size);
-        mesh->Draw();
+        mesh.Draw();
 
         pos[0] += (ch.advance >> 6) * scale;
     }

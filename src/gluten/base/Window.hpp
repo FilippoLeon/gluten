@@ -32,6 +32,8 @@ public:
         // TODO: resize correct viewport in case of multiple windows.
         glfwSetFramebufferSizeCallback(window, &Window::FramebufferSizeCallback);
 
+        FramebufferSizeCallback(window, width, height);
+
         glEnable(GL_DEPTH_TEST);
     }
 
