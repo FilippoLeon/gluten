@@ -27,7 +27,7 @@ public:
         : vertices{ vertices }, triangles{ triangles } {
 
         glGenVertexArrays(1, &vertex_array_object);
-        glBindVertexArray(vertex_array_object);
+        Bind();
 
         glGenBuffers(1, &vertex_buffer_object);
         glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
@@ -46,22 +46,29 @@ public:
         }
         int i = 0;
         int p = 0;
-        for (int j = 0; j < displacements.size(); ++j) {
+        for (int j = 0; j < (int) displacements.size(); ++j) {
             int d = displacements[j];
-            if ( ignore.size() <= j || ignore[j] == 0 ) {
+            if ( (int) ignore.size() <= j || ignore[j] == 0 ) {
                 glVertexAttribPointer(i, d, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(p * sizeof(float)));
                 glEnableVertexAttribArray(i++);
             }
             p += d;
         }
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
-
-        glBindVertexArray(0);
+        Unbind();
     }
 
     ~Mesh() {
 
+    }
+
+    void Bind() {
+        glBindVertexArray(vertex_array_object);
+    }
+
+    static void Unbind() {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
     template <bool wireframe = false>

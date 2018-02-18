@@ -2,16 +2,32 @@
 
 #include <type_traits>
 #include <tuple>
+#include <array>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace utils::glm {
+#include "gluten/base/Color.hpp"
+
+namespace gluten::utils::glm {
+
+template <typename Test, template<class...> class Ref>
+struct is_instance_of : std::false_type {};
+
+template <template<class...> class Ref, class... Args>
+struct is_instance_of<Ref<Args...>, Ref> : std::true_type {};
+
+template <typename C>
+constexpr bool is_allowed_container() {
+    return is_instance_of<C, std::vector>::value;
+}
 
 template <typename T>
 constexpr std::tuple<int, int> get_vec_size() {
-    if constexpr ( std::is_arithmetic_v<T> ) {
-        return { 1, 1 };
+    if constexpr ( std::is_same_v<T, base::Color> ) {
+        return {4, 1};
+    } else if constexpr ( std::is_arithmetic_v<T> ) {
+        return {1, 1};
     } else if constexpr ( std::is_same_v<::glm::tvec1<typename T::value_type>, T>) {
         return { 1, 1 };
     } else if constexpr ( std::is_same_v<::glm::tvec2<typename T::value_type>, T>) {
@@ -29,13 +45,18 @@ constexpr std::tuple<int, int> get_vec_size() {
     } else if constexpr (std::is_same_v<::glm::tmat3x4<typename T::value_type>, T>) {
         return { 3, 4 };
     } else {
-        return get_vec_size<T::value_type>();
+        return get_vec_size<t<typename T::value_type>();
     }
 }
 
+//template <typename T, unsigned int N>
+//constexpr std::tuple<int, int> get_vec_size<std::array<T, N>>() {
+//
+//};
+
 template <typename T>
 constexpr bool is_glm_vector() {
-    if constexpr (std::is_fundamental_v<T>) {
+    if constexpr (std::is_fundamental_v<T> || std::is_same_v<T, base::Color>) {
         return false;
     } else {
         return std::is_same_v<::glm::tvec1<typename T::value_type>, T> ||
@@ -47,7 +68,7 @@ constexpr bool is_glm_vector() {
 
 template <typename T>
 constexpr bool is_glm_matrix() {
-    if constexpr (std::is_fundamental_v<T>) {
+    if constexpr (std::is_fundamental_v<T> || std::is_same_v<T, base::Color>) {
         return false;
     } else {
         return std::is_same_v<::glm::tmat2x2<typename T::value_type>, T> ||
@@ -56,18 +77,6 @@ constexpr bool is_glm_matrix() {
                std::is_same_v<::glm::tmat3x4<typename T::value_type>, T>;
     }
 }
-
-template <typename Test, template<class...> class Ref>
-struct is_instance_of : std::false_type {};
-
-template <template<class...> class Ref, class... Args>
-struct is_instance_of<Ref<Args...>, Ref> : std::true_type {};
-
-template <typename C>
-constexpr bool is_allowed_container() {
-    return is_instance_of<C, std::vector>::value;
-}
-
 
 template <typename T>
 constexpr bool is_glm_fundamental() {
@@ -99,14 +108,19 @@ struct vec_value_type_helper<T, false, false> {
     using type = typename T::value_type::value_type;
 };
 
+template <>
+struct vec_value_type_helper<base::Color, true, false> {
+    using type = float;
+};
 
 template <typename T>
-using vec_value_type = typename vec_value_type_helper<T, std::is_arithmetic_v<T>, is_glm_fundamental<T>()>::type;
+using vec_value_type = typename vec_value_type_helper<T, std::is_arithmetic_v<T>
+                                                         || std::is_same_v<T, base::Color>, is_glm_fundamental<T>()>::type;
 
 template <typename T>
 const auto* get_data(const T & vec) {
-    if constexpr( std::is_arithmetic_v<T> ) {
-        return &vec;
+    if constexpr( std::is_arithmetic_v<T> || std::is_same_v<T, base::Color> ) {
+        return reinterpret_cast<const vec_value_type<T>*>(&vec);
     } else if constexpr ( is_glm_fundamental<T>() ) {
         return ::glm::value_ptr(vec);
     } else {

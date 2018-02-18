@@ -1,11 +1,16 @@
 #pragma once 
 
+#include <memory>
 #include <string>
 #include <map>
 
 #include "gluten/shader/Shader.hpp"
 
 #include "gluten/base/Color.hpp"
+
+#include "gluten/geometry/Mesh.hpp"
+
+#include "gluten/camera/Camera.hpp"
 
 namespace gluten::fonts {
 
@@ -16,11 +21,12 @@ struct Character {
 
 class Font {
 public:
-    Font(std::string filename, shader::ShaderProgram & shader, int height = 16);
+    Font(std::string filename, shader::ShaderProgram & shader, int height = 48);
 
     ~Font();
 
-    void Draw(std::string text, base::Color color);
+    void Draw(camera::CameraOrthographic cam, std::string text,
+              base::Color color, std::array<float, 2> pos, float scale = 1.);
 
 private:
     static bool freetype_isinit;
@@ -29,6 +35,8 @@ private:
     std::map<char, Character> charmap;
 
     shader::ShaderProgram & shader;
+
+    std::unique_ptr<geometry::Mesh> mesh;
 };
 
 }

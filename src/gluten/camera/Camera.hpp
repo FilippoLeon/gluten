@@ -146,7 +146,7 @@ class CameraOrthographic : public  Camera {
     CameraOrthographic(const base::Window & win, 
                        Rectangle viewportRect = Rectangle())
         : Camera(win, viewportRect) {}
-
+public:
     virtual glm::mat4 GetMatrix() {
         glm::mat4 viewMat = glm::translate(glm::mat4(), -position);
         return  GetProjectionMatrix() * glm::toMat4(rotation) * viewMat;

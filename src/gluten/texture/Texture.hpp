@@ -62,9 +62,9 @@ public:
 
     void SetFilter(Scaling scl, Interpolation interpolation) {
         Bind();
-        assert(!(scl == Scaling::Magnification)
-               || (interpolation == Interpolation::Nearest 
-                   || interpolation == Interpolation::Linear)
+        assert( (!(scl == Scaling::Magnification)
+                   || (interpolation == Interpolation::Nearest
+                   || interpolation == Interpolation::Linear))
                && "Magnification cannot use Mipmap levels"
         );
         glTexParameteri(GetType(), (int) scl, (int) interpolation);

@@ -1,9 +1,12 @@
 #include "Font.hpp"
 
 #include <ft2build.h>
+#include <geometry/Mesh.hpp>
 #include FT_FREETYPE_H 
 
 #include "gluten/debug/exceptions.hpp"
+
+#include "gluten/texture/Texture.hpp"
 
 namespace gluten::fonts {
 
@@ -26,14 +29,13 @@ Font::Font(std::string filename, shader::ShaderProgram & shader , int height)
         throw debug::RuntimeException("Could't find or load font at {}!" + filename);
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 48);
+    FT_Set_Pixel_Sizes(face, 0, height);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     for (char c = 0; c < 128; c++) {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
             throw debug::RuntimeException("Could't load char {}!" + (int) c);
-            continue;
         }
 
         unsigned int texture;
@@ -47,10 +49,12 @@ Font::Font(std::string filename, shader::ShaderProgram & shader , int height)
             face->glyph->advance.x
         };
 
-//        glTexImage2(GL_TEXTURE_2D, 0, GL_RED,
-//                    character.width, character.height,
-//                    0, GL_RED, GL_UNSIGNED_BYTE,
-//        );
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED,
+                    character.width, character.height,
+                    0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer
+        );
+
+        mesh = std::make_unique<geometry::Mesh>(geometry::Plane({0, 1, 1}));
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -73,44 +77,39 @@ Font::~Font() {
     }
 }
 
-void Font::Draw(std::string text, base::Color color) {
+void Font::Draw(camera::CameraOrthographic cam, std::string text,
+                base::Color color, std::array<float, 2> pos, float scale) {
     //void RenderText(Shader &s, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
-//    s.Use();
-//    s.Uniform("textColor", color);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindVertexArray(VAO);
-//
-//    std::string::const_iterator c;
-//    for (c = text.begin(); c != text.end(); c++) {
-//        Character ch = Characters[*c];
-//
-//        GLfloat xpos = x + ch.Bearing.x * scale;
-//        GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-//
-//        GLfloat w = ch.Size.x * scale;
-//        GLfloat h = ch.Size.y * scale;
-//
-//        GLfloat vertices[6][4] = {
-//            { xpos,     ypos + h,   0.0, 0.0 },
-//        { xpos,     ypos,       0.0, 1.0 },
-//        { xpos + w, ypos,       1.0, 1.0 },
-//
-//        { xpos,     ypos + h,   0.0, 0.0 },
-//        { xpos + w, ypos,       1.0, 1.0 },
-//        { xpos + w, ypos + h,   1.0, 0.0 }
-//        };
-//
-//        glBindTexture(GL_TEXTURE_2D, ch.texture_id);
-//
-//        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
-//        glDrawArrays(GL_TRIANGLES, 0, 6);
-//
-//        x += (ch.Advance >> 6) * scale;
-//    }
-//    glBindVertexArray(0);
-//    glBindTexture(GL_TEXTURE_2D, 0);
+    shader.Use();
+    shader.SetUniformLocation("textColor", color);
+    shader.SetUniformLocation("projection", cam.GetProjectionMatrix());
+    glActiveTexture(GL_TEXTURE0);
+    mesh->Bind();
+
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) {
+        Character ch = charmap[*c];
+
+        std::array<float, 2> local_pos = {
+            pos[0] + ch.width * scale,
+            pos[1] - (ch.top - ch.height) * scale
+        };
+
+        std::array<float, 2> size = { ch.width * scale,  ch.height * scale};
+
+        glBindTexture(GL_TEXTURE_2D, ch.texture_id);
+        shader.SetUniformLocation("position", local_pos);
+        shader.SetUniformLocation("size", size);
+        mesh->Draw();
+
+        pos[0] += (ch.advance >> 6) * scale;
+    }
+
+    geometry::Mesh::Unbind();
+    texture::ITexture::Unbind();
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 }
