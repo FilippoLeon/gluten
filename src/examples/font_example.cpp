@@ -23,7 +23,7 @@
 int main() {
     gluten::base::Application app;
 
-    gluten::base::Window window(1000, 1000, "Win");
+    gluten::base::Window window(1000, 1000, "Win", gluten::base::VSync::Off);
 
     gluten::shader::VertexShader text_vs({ "TEXTURE" }, app.GlutenRoot("/shader/examples/text.vs"));
     gluten::shader::FragmentShader text_fs({ "TEXTURE" }, app.GlutenRoot("/shader/examples/text.fs"));
@@ -39,18 +39,20 @@ int main() {
     gluten::geometry::Mesh cube_msh = gluten::geometry::Cube({ 0, 0, 0 });
 
     std::shared_ptr<gluten::texture::Texture<>> texture = 
-        std::make_shared<gluten::texture::Texture<>>("base_texture.jpg");
+        std::make_shared<gluten::texture::Texture<>>(gluten::texture::STBTextureLoader("base_texture.jpg"));
     texture->SetDefaults();
 
     std::shared_ptr<gluten::camera::DirectionalLight> dir_light = 
         std::make_shared<gluten::camera::DirectionalLight>();
-    dir_light->direction = glm::vec3(0.f, 4.f, 0.f);
+    dir_light->SetDirection(glm::vec3(0.f, 4.f, 0.f));
 
-    gluten::camera::CameraPerspective cam(window);
+    gluten::camera::CameraPerspective cam;
     cam.position += glm::vec3(0.0f, 1.0f, 3.0f);
     cam.rotation = glm::rotate(cam.rotation, 0.1f, glm::vec3(1, 0, 0));
 
-    gluten::camera::CameraOrthographic canvas_cam(window);
+    gluten::camera::CameraOrthographic canvas_cam(
+        gluten::camera::Rectangle(0,0,window.Width(), window.Height()), 0, 50
+    );
 
     gluten::shader::Material material(shader);
     material.SetTexture(0, texture);
@@ -64,16 +66,22 @@ int main() {
 
     int time = 0;
     while (!window.ShouldClose()) {
+        app.Update();
+
         window.ProcessInput();
         window.Clear();
 
-        cam.Update();
+        cam.Update(window);
 
         //cube.Draw(cam);
 
+        float elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(app.elapsed).count() * 1e-6;
+        int fps = 1000. / elapsed;
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        font.Draw(canvas_cam, "abracadabra__()444abppd", gluten::base::Color(1., 0., 0.), { 10, 10 }, 1);
+        font.Draw(canvas_cam, "Debug: " + std::to_string(elapsed) + " ms (" + std::to_string(fps) + " FPS)", 
+                  gluten::base::Color(1., 0., 0.), { 10, 10 }, 1);
 
         window.SwapBuffers();
         app.PollEvents();

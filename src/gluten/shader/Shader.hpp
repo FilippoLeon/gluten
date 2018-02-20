@@ -201,8 +201,9 @@ public:
         SetUniformLocation("lights[" + is + "].diffuseColor", light->diffuseColor);
         SetUniformLocation("lights[" + is + "].specularColor", light->specularColor);
 
-        SetUniformLocation("lights[" + is + "].position", light->position);
-        SetUniformLocation("lights[" + is + "].direction", light->direction);
+        SetUniformLocation("lights[" + is + "].viewMatrix", light->GetViewMatrix());
+        SetUniformLocation("lights[" + is + "].position", light->GetPosition());
+        SetUniformLocation("lights[" + is + "].direction", light->GetDirection());
         SetUniformLocation("lights[" + is + "].cutoff", light->cutoff);
         SetUniformLocation("lights[" + is + "].type", light->type);
         SetUniformLocation("lights[" + is + "].fade", light->fade);

@@ -35,10 +35,11 @@ int main() {
         }, {3, 4, 2}
     };
 
-    gluten::texture::Texture<> texture("asd.jpg");
+    gluten::texture::Texture<> texture(gluten::texture::STBTextureLoader("asd.jpg"));
 
     int time = 0;
     while (!window.ShouldClose()) {
+
         window.ProcessInput();
         window.Clear();
 

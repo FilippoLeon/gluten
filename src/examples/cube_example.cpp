@@ -27,7 +27,7 @@ int main() {
 
     gluten::geometry::Mesh msh = gluten::geometry::Cube({ 0, 0, 1 });
 
-    gluten::texture::Texture<> texture("asd.jpg");
+    gluten::texture::Texture<> texture(gluten::texture::STBTextureLoader("asd.jpg"));
 
     int time = 0;
     while (!window.ShouldClose()) {

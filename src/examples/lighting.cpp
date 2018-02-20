@@ -36,24 +36,24 @@ int main() {
     gluten::geometry::Mesh plane = gluten::geometry::Plane({ 0, 0, 0 });
     gluten::geometry::Mesh cube_msh = gluten::geometry::Cube({ 0, 0, 0 });
 
-    std::shared_ptr<gluten::texture::Texture<>> texture = std::make_shared<gluten::texture::Texture<>>("base_texture.jpg");
+    std::shared_ptr<gluten::texture::Texture<>> texture = std::make_shared<gluten::texture::Texture<>>(gluten::texture::STBTextureLoader("base_texture.jpg"));
 
-    gluten::camera::CameraPerspective cam(window);
+    gluten::camera::CameraPerspective cam;
     cam.position += glm::vec3(0.0f, 1.0f, 3.0f);
     cam.rotation = glm::rotate(cam.rotation, 0.1f, glm::vec3(1, 0, 0));
 
     std::shared_ptr<gluten::camera::PointLight> point_light = std::make_shared<gluten::camera::PointLight>();
-    point_light->position = glm::vec3(0.f, 4.f, 0.f);
+    point_light->SetPosition(glm::vec3(0.f, 4.f, 0.f));
     point_light->ambientColor = glm::vec3(0.f, 0.f, 0.f);
     point_light->diffuseColor = glm::vec3(0.1f, 0.1f, 0.1f);
     point_light->specularColor = glm::vec3(1,1,1);
 
     std::shared_ptr<gluten::camera::DirectionalLight> dir_light = std::make_shared<gluten::camera::DirectionalLight>();
-    dir_light->direction = glm::vec3(0.f, 4.f, 0.f);
+    dir_light->SetDirection(glm::vec3(0.f, 4.f, 0.f));
 
     std::shared_ptr<gluten::camera::SpotLight> light = std::make_shared<gluten::camera::SpotLight>();
-    light->position = cam.position;
-    light->direction = cam.Forward();
+    light->SetPosition(cam.position);
+    light->SetDirection(cam.Forward());
     //light->radius = glm::cos(glm::radians(12.5f));
 
     gluten::shader::Material material(shader);
@@ -95,12 +95,12 @@ int main() {
         window.ProcessInput();
         window.Clear();
 
-        cam.Update();
+        cam.Update(window);
 
         light_cube.rotation = glm::angleAxis(glm::radians((float) time++), glm::vec3(0.0f, 1.0f, 0.0f));
         //light->radius = glm::cos(glm::radians(12.5f)); // *sin(2. * glm::pi<float>() * time / 40);
-        light->direction = cam.Forward();    
-        light->position = cam.position;
+        light->SetDirection(cam.Forward());    
+        light->SetPosition(cam.position);
 
         light_cube.Draw(cam);
         cube.Draw(cam);

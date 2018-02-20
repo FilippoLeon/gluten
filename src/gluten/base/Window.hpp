@@ -11,9 +11,15 @@
 
 namespace gluten::base {
 
+enum class VSync {
+    Off = 0,
+    On = 1,
+};
+
 class Window {
 public:
-    Window(int width, int height, std::string title = "") {
+    Window(int width, int height, 
+           std::string title = "", VSync vsync = VSync::On) {
         window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
         if ( window == nullptr ) {
             throw std::runtime_error("Failed to create window.");
@@ -26,6 +32,7 @@ public:
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
             throw std::runtime_error("Failed to initialize GLAD!");
         }
+        glfwSwapInterval((int)vsync);
 
         using namespace std::placeholders;
 
@@ -62,6 +69,10 @@ public:
     inline void Clear(bool depth = true) {
         glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         glClear(GL_COLOR_BUFFER_BIT | (depth ? GL_DEPTH_BUFFER_BIT : 0));
+    }
+
+    void UseViewport() {
+        glViewport(0, 0, width, height);
     }
 
     int Width() const { return width;  }

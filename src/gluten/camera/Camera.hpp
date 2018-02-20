@@ -9,7 +9,8 @@ namespace gluten::camera {
 
 class Rectangle {
 public:
-    Rectangle(float posx = 0.0f, float posy = 0.0f, float width = 1.0f, float height = 1.0f)
+    Rectangle(float posx = 0.0f, float posy = 0.0f,
+              float width = 1.0f, float height = 1.0f)
     : posx(posx), posy(posy), width(width), height(height) {
 
     }
@@ -23,26 +24,18 @@ public:
 
 class Camera {
 public:
-    Camera(const base::Window & win, Rectangle viewportRect = Rectangle()) 
-    : window(win), viewportRect(viewportRect) {
+    Camera(Rectangle viewportRect = Rectangle()) 
+    : viewportRect(viewportRect) {
 
     }
 
     float AspectRatio() {
-        return (float) window.Width() / window.Height();
+        return (float) viewportRect.AspectRatio();
     }
 
-    void Update() {
+    virtual void Update(const base::Window & window) {
         glm::mat3 rot = glm::transpose(glm::toMat3(rotation));
         // Move somewhere else
-        if (glfwGetKey(window.get(), GLFW_KEY_UP) == GLFW_PRESS
-            || glfwGetKey(window.get(), GLFW_KEY_W) == GLFW_PRESS) {
-            position -= translateSpeed * rot * glm::vec3(0.0f, 0.0f, 1.0f);
-        }
-        if ( glfwGetKey(window.get(), GLFW_KEY_DOWN) == GLFW_PRESS
-            || glfwGetKey(window.get(), GLFW_KEY_S) == GLFW_PRESS) {
-            position += translateSpeed * rot * glm::vec3(0.0f, 0.0f, 1.0f);
-        }
         if (glfwGetKey(window.get(), GLFW_KEY_LEFT) == GLFW_PRESS
                    || glfwGetKey(window.get(), GLFW_KEY_A) == GLFW_PRESS) {
             position -= translateSpeed * rot * glm::vec3(1.0f, 0.0f, 0.0f);
@@ -100,7 +93,7 @@ public:
                                    glm::normalize(rot * glm::vec3(1.0f, 0.0f, 0.0f))
             );
         }
-        std::cout << position.x << "," << position.y << "," << position.z << std::endl;
+        //std::cout << "position:" << position.x << "," << position.y << "," << position.z << ")" << std::endl;
     }
 
     glm::vec3 Forward() {
@@ -113,9 +106,8 @@ public:
     glm::vec3 position;
     glm::quat rotation;
 
-protected:
-    const base::Window & window;
     Rectangle viewportRect;
+protected:
 
     float distMin = 0.1f;
     float distMax = 100.0f;
@@ -126,8 +118,23 @@ protected:
 
 class CameraPerspective : public Camera {
 public:
-    CameraPerspective(const base::Window & win, Rectangle viewportRect = Rectangle())
-     : Camera(win, viewportRect) { }
+    CameraPerspective(Rectangle viewportRect = Rectangle())
+     : Camera(viewportRect) { }
+
+    virtual void Update(const base::Window & window) {
+        Camera::Update(window);
+
+        glm::mat3 rot = glm::transpose(glm::toMat3(rotation));
+        // Move somewhere else
+        if (glfwGetKey(window.get(), GLFW_KEY_UP) == GLFW_PRESS
+            || glfwGetKey(window.get(), GLFW_KEY_W) == GLFW_PRESS) {
+            position -= translateSpeed * rot * glm::vec3(0.0f, 0.0f, 1.0f);
+        }
+        if (glfwGetKey(window.get(), GLFW_KEY_DOWN) == GLFW_PRESS
+            || glfwGetKey(window.get(), GLFW_KEY_S) == GLFW_PRESS) {
+            position += translateSpeed * rot * glm::vec3(0.0f, 0.0f, 1.0f);
+        }
+    }
 
     virtual glm::mat4 GetMatrix() {
         glm::mat4 viewMat = glm::translate(glm::mat4(), -position);
@@ -144,9 +151,28 @@ private:
 
 class CameraOrthographic : public  Camera {
 public:
-    CameraOrthographic(const base::Window & win, 
-                       Rectangle viewportRect = Rectangle())
-        : Camera(win, viewportRect) {}
+    CameraOrthographic(Rectangle viewportRect = Rectangle(), 
+                       float nearPlane = 0.01f, float farPlane = 50.0f)
+        : Camera(viewportRect), nearPlane(nearPlane), farPlane(farPlane) {}
+
+    virtual void Update(const base::Window & window) {
+        Camera::Update(window);
+
+        if (glfwGetKey(window.get(), GLFW_KEY_UP) == GLFW_PRESS
+            || glfwGetKey(window.get(), GLFW_KEY_W) == GLFW_PRESS) {
+            viewportRect.width -= translateSpeed;
+            viewportRect.height -= translateSpeed;
+            viewportRect.posx += translateSpeed;
+            viewportRect.posy += translateSpeed;
+        }
+        if (glfwGetKey(window.get(), GLFW_KEY_DOWN) == GLFW_PRESS
+            || glfwGetKey(window.get(), GLFW_KEY_S) == GLFW_PRESS) {
+            viewportRect.width += translateSpeed;
+            viewportRect.height += translateSpeed;
+            viewportRect.posx -= translateSpeed;
+            viewportRect.posy -= translateSpeed;
+        }
+    }
 
     virtual glm::mat4 GetMatrix() {
         glm::mat4 viewMat = glm::translate(glm::mat4(), -position);
@@ -154,10 +180,12 @@ public:
     }
 
     virtual glm::mat4 GetProjectionMatrix() {
-        return glm::ortho(0.0f, (float) window.Height(), 
-                          0.0f, (float) window.Width(), -1.0f, 1.0f);
+        return glm::ortho((float) viewportRect.posx, (float) viewportRect.width,
+                          (float) viewportRect.posy, (float) viewportRect.height, 
+                          nearPlane, farPlane);
     }
 
+    float nearPlane, farPlane;
     float size;
 };
 

@@ -2,6 +2,9 @@
 
 #include <string>
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 namespace gluten::texture {
 
 class STBTextureLoader {
@@ -13,6 +16,17 @@ public:
     int Width() const { return width; }
     int Height() const { return height; }
     int Channels() const { return channels; }
+
+    void Bind() {};
+
+    static void Unbind() {};
+
+    void Attach(int texture_id) {};
+
+    int GetType() const {
+        return GL_RGB;
+    }
+
     unsigned char * Data() { return data; }
 
 private:

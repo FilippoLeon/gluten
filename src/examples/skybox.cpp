@@ -37,7 +37,7 @@ int main() {
     gluten::geometry::Mesh cube_msh = gluten::geometry::Cube({ 0, 0, 0 });
     gluten::geometry::Mesh cube_sb_msh = gluten::geometry::Skybox({ 0 });
 
-    std::shared_ptr<gluten::texture::Texture<>> texture = std::make_shared<gluten::texture::Texture<>>("base_texture.jpg");
+    std::shared_ptr<gluten::texture::Texture<>> texture = std::make_shared<gluten::texture::Texture<>>(gluten::texture::STBTextureLoader("base_texture.jpg"));
 
     std::shared_ptr<gluten::texture::TextureCube<>> texture_skybox =
         std::make_shared<gluten::texture::TextureCube<>>(gluten::texture::TextureCube<>{
@@ -53,13 +53,13 @@ int main() {
     texture->SetDefaults();
     texture_skybox->SetDefaults();
 
-    gluten::camera::CameraPerspective cam(window);
+    gluten::camera::CameraPerspective cam;
     cam.position += glm::vec3(0.0f, 1.0f, 3.0f);
     cam.rotation = glm::rotate(cam.rotation, 0.1f, glm::vec3(1, 0, 0));
 
     std::shared_ptr<gluten::camera::DirectionalLight> dir_light 
         = std::make_shared<gluten::camera::DirectionalLight>();
-    dir_light->direction = glm::vec3(0.f, 4.f, 0.f);
+    dir_light->SetDirection(glm::vec3(0.f, 4.f, 0.f));
 
     gluten::shader::Material material(shader);
     material.SetTexture(0, texture);
@@ -92,8 +92,7 @@ int main() {
         window.ProcessInput();
         window.Clear();
 
-        cam.Update();
-
+        cam.Update(window);
 
         light_cube.Draw(cam);
         cube.Draw(cam);

@@ -50,6 +50,7 @@ public:
             shader.SetUniformLocation("material.specularColor", specularColor);
             shader.SetUniformLocation("material.ambientColor", ambientColor);
         }
+        shader.SetUniformLocation("shadowMap", 2);
 
         shader.SetUniformLocation("material.shininess", shininess);
     }

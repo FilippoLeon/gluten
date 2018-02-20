@@ -23,26 +23,37 @@ public:
         assert(meshes.size() == materials.size() && "One mesh per material!");
     }
 
-    void Draw(camera::Camera & camera) {
+    class empty {};
+
+    template <class S = empty>
+    void Draw(camera::Camera & camera, S & shader = empty()) {
         glm::mat4 transform = camera.GetMatrix();
         glm::mat4 projection = camera.GetProjectionMatrix();
 
         for (int i = 0; i < sub_models; ++i) {
-            materials[i].Use(camera);
+            if constexpr( std::is_same_v<S, empty>) {
+                materials[i].Use(camera);
 
-            materials[i].GetShader().SetUniformLocation("projection", projection);
-            materials[i].GetShader().SetUniformLocation("transform", transform);
-            materials[i].GetShader().SetUniformLocation("modelView", GetMatrix());
-            materials[i].GetShader().SetUniformLocation("jacobianTransform", GetJacobian());
+                materials[i].GetShader().SetUniformLocation("projection", projection);
+                materials[i].GetShader().SetUniformLocation("transform", transform);
+                materials[i].GetShader().SetUniformLocation("modelView", GetMatrix());
+                materials[i].GetShader().SetUniformLocation("jacobianTransform", GetJacobian());
+            } else {
+                shader.SetUniformLocation("projection", projection);
+                shader.SetUniformLocation("transform", transform);
+                shader.SetUniformLocation("modelView", GetMatrix());
+                shader.SetUniformLocation("jacobianTransform", GetJacobian());
+            }
 
             meshes[i].Draw<>();
         }
     }
 
     glm::mat4 GetMatrix() {
-
         glm::mat4 rot = glm::toMat4(rotation);
-        return glm::scale(glm::translate(glm::mat4(), position), scale) * rot;
+        return glm::scale(glm::translate(glm::mat4(), position) * rot, scale);
+        //glm::mat4 rot = glm::toMat4(rotation);
+        //return glm::scale(glm::translate(glm::mat4() * rot, position), scale);
     }
 
     glm::mat3 GetJacobian() {

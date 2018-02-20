@@ -87,15 +87,15 @@ protected:
 template <class TextureLoader = STBTextureLoader>
 class Texture : public ITexture {
 public:
-    Texture(std::string filename) {
+    Texture(TextureLoader & tl) {
         glGenTextures(1, &texture_id);
 
-        TextureLoader tl(filename);
-
         Bind();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tl.Width(), tl.Height(), 
-                     0, GL_RGB, GL_UNSIGNED_BYTE, tl.Data());
+        glTexImage2D(GL_TEXTURE_2D, 0, tl.GetType(), tl.Width(), tl.Height(),
+                     0, tl.GetType(), GL_UNSIGNED_BYTE, tl.Data());
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        tl.Attach(texture_id);
     }
 
     unsigned int GetType() {
