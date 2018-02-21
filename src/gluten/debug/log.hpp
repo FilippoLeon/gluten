@@ -49,7 +49,7 @@ inline void LogError(std::string format_str, Args&&... args) {
 }
 
 template <class ...Args>
-inline void LogWarning(std::string format_str, Args&&... args) {
+inline void LogWarning(std::string format_str, [[maybe_unused]] Args &&... args) {
 #if USE_FMT
     if constexpr(LOG_LEVEL >= LogLevel::warning) {
         std::cout << fmt::format(PRESTRING[(int) LogLevel::warning] + format_str + "\n");

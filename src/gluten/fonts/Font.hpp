@@ -15,8 +15,10 @@
 namespace gluten::fonts {
 
 struct Character {
-    int texture_id;
-    int width, height, left, top, advance;
+    unsigned int texture_id;
+    unsigned int width, height;
+    int left, top;
+    long int advance;
 };
 
 class Font {

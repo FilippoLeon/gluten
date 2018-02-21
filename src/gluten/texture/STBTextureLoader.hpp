@@ -21,7 +21,7 @@ public:
 
     static void Unbind() {};
 
-    void Attach(int texture_id) {};
+    void Attach(int) {};
 
     int GetType() const {
         return GL_RGB;

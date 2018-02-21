@@ -3,12 +3,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#if USE_FMT
-#include <fmt/format.h>
-#endif
-
 #include <fstream>
 #include <string>
+
+#include "gluten/utils/include_fmt.hpp"
 
 #include "gluten/debug/log.hpp"
 #include "gluten/debug/exceptions.hpp"

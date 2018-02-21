@@ -106,6 +106,11 @@ struct vec_value_type_helper<T, true, false> {
     using type = T;
 };
 
+template<typename T, std::size_t N>
+struct vec_value_type_helper<std::array<T, N>, false, false> {
+    using type = T;
+};
+
 template <typename T>
 struct vec_value_type_helper<T, false, false> {
     using type = typename T::value_type::value_type;
@@ -116,10 +121,6 @@ struct vec_value_type_helper<base::Color, true, false> {
     using type = float;
 };
 
-template <typename T, unsigned int N>
-struct vec_value_type_helper<std::array<T, N>, false, false> {
-    using type = T;
-};
 
 template <typename T>
 using vec_value_type = typename vec_value_type_helper<T, std::is_arithmetic_v<T>

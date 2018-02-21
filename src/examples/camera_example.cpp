@@ -6,15 +6,11 @@
 #include "gluten/base/Application.hpp"
 #include "gluten/base/Window.hpp"
 
-#include "gluten/base/Color.hpp"
-
 #include "gluten/shader/Shader.hpp"
 
 #include "gluten/geometry/Mesh.hpp"
 
 #include "gluten/texture/Texture.hpp"
-
-#include "gluten/camera/Camera.hpp"
 
 int main() {
     gluten::base::Application app;
@@ -33,7 +29,6 @@ int main() {
 
     gluten::camera::CameraPerspective cam;
 
-    int time = 0;
     while (!window.ShouldClose()) {
         window.ProcessInput();
         window.Clear();
