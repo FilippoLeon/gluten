@@ -5,18 +5,12 @@
 
 #include "gluten/base/Application.hpp"
 #include "gluten/base/Window.hpp"
-#include "gluten/base/Color.hpp"
 
 #include "gluten/shader/Shader.hpp"
 #include "gluten/shader/Material.hpp"
 
 #include "gluten/geometry/Mesh.hpp"
 #include "gluten/geometry/Model.hpp"
-
-#include "gluten/texture/Texture.hpp"
-
-#include "gluten/camera/Camera.hpp"
-#include "gluten/camera/Light.hpp"
 
 int main() {
     gluten::base::Application app;

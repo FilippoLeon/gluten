@@ -1,7 +1,15 @@
 #include "STBTextureLoader.hpp"
 
+
+#if defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif // defined(__GNUC__)
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#if defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif // defined(__GNUC__)
 
 #include "gluten/debug/log.hpp"
 

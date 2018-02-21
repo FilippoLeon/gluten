@@ -33,7 +33,7 @@ const std::vector<std::string> PRESTRING = {
 };
 
 template <LogLevel ll, class ...Args>
-inline void Log(std::string format_str, Args&&... args) {
+inline void Log(std::string format_str, [[maybe_unused]] Args&&... args) {
 #if USE_FMT
     if constexpr(LOG_LEVEL >= ll) {
         std::cout << fmt::format(PRESTRING[(int) ll] + format_str + "\n");

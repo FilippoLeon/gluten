@@ -24,34 +24,9 @@
 
 #include "gluten/fonts/Font.hpp"
 
+#include "gluten/utils/string.hpp"
+
 using namespace gluten;
-
-
-template <typename T>
-std::string to_string(const T & v, int n = 2) {
-    std::ostringstream out;
-    out << std::setprecision(n) << v;
-    return out.str();
-}
-
-std::string to_string(glm::vec3 vec, int n = 2) {
-    return to_string(vec.x, n) 
-        + ", " + to_string(vec.y, n) 
-        + ", " + to_string(vec.z, n);
-}
-
-std::string to_string(glm::vec4 vec, int n = 2) {
-    return to_string(vec.x, n)
-        + ", " + to_string(vec.y, n)
-        + ", " + to_string(vec.z, n)
-        + ", " + to_string(vec.w, n);
-}
-std::string to_string(glm::quat vec, int n = 2) {
-    return to_string(vec.x, n)
-        + ", " + to_string(vec.y, n)
-        + ", " + to_string(vec.z, n)
-        + ", " + to_string(vec.w, n);
-}
 
 int main() {
     base::Application app;
@@ -247,15 +222,16 @@ int main() {
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        font.Draw(canvas_cam, "Debug:    " + to_string(elapsed, 2) + " ms (" + std::to_string(fps) + " FPS)",
+        font.Draw(canvas_cam, "Debug:    " + string::to_string(elapsed, 2) + " ms (" + std::to_string(fps) + " FPS)",
                   gluten::base::Color(1., 0., 0.), { 10, 10 }, 0.5);
-        font.Draw(canvas_cam, "Position: " + to_string(cam.position),
+        font.Draw(canvas_cam, "Position: " + string::to_string(cam.position),
                   gluten::base::Color(1., 0., 0.), { 10, 40 }, 0.5);
-        font.Draw(canvas_cam, "Rotation: " + to_string(cam.rotation),
+        font.Draw(canvas_cam, "Rotation: " + string::to_string(cam.rotation),
                   gluten::base::Color(1., 0., 0.), { 10, 70 }, 0.25);
-        font.Draw(canvas_cam, "Forward:  " + to_string(cam.Forward()),
+        font.Draw(canvas_cam, "Forward:  " + string::to_string(cam.Forward()),
                   gluten::base::Color(1., 0., 0.), { 10, 90 }, 0.25);
-        font.Draw(canvas_cam, "Viewport: " + to_string(cam.viewportRect.width) + " " + to_string(cam.viewportRect.height),
+        font.Draw(canvas_cam, "Viewport: " + string::to_string(cam.viewportRect.width)
+                              + " " + string::to_string(cam.viewportRect.height),
                   gluten::base::Color(1., 0., 0.), { 10, 110 }, 0.25);
 
         window.SwapBuffers();

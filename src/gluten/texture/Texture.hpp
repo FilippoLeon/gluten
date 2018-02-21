@@ -87,7 +87,8 @@ protected:
 template <class TextureLoader = STBTextureLoader>
 class Texture : public ITexture {
 public:
-    Texture(TextureLoader &&tl) {
+    template <class TextureLoader_ = TextureLoader>
+    Texture(TextureLoader_ && tl) {
         glGenTextures(1, &texture_id);
 
         Bind();

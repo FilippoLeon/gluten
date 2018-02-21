@@ -12,7 +12,8 @@ namespace gluten::shader {
 
 class Material {
 public:
-    Material(ShaderProgram & shader) : shader(shader), textures(2) {
+    Material(ShaderProgram & shader)
+            : textures(2), shader(shader) {
     }
 
     void SetTexture(int i, std::shared_ptr<texture::ITexture> tex) {
@@ -68,10 +69,11 @@ public:
     shader::ShaderProgram & GetShader() const {
         return shader;
     }
-private: 
+private:
+    shader::ShaderProgram & shader;
+
     bool textured = false;
 
-    shader::ShaderProgram & shader;
 };
 
 }

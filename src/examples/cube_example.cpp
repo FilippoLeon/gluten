@@ -6,8 +6,6 @@
 #include "gluten/base/Application.hpp"
 #include "gluten/base/Window.hpp"
 
-#include "gluten/base/Color.hpp"
-
 #include "gluten/shader/Shader.hpp"
 
 #include "gluten/geometry/Mesh.hpp"
@@ -29,7 +27,6 @@ int main() {
 
     gluten::texture::Texture<> texture(gluten::texture::STBTextureLoader("asd.jpg"));
 
-    int time = 0;
     while (!window.ShouldClose()) {
         window.ProcessInput();
         window.Clear();

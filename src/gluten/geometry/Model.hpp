@@ -26,7 +26,7 @@ public:
     class empty {};
 
     template <class S = empty>
-    void Draw(camera::Camera & camera, S & shader = empty()) {
+    void Draw(camera::Camera & camera, S && shader = empty()) {
         glm::mat4 transform = camera.GetMatrix();
         glm::mat4 projection = camera.GetProjectionMatrix();
 

@@ -15,7 +15,7 @@ int Font::freetype_instances = 0;
 bool Font::freetype_isinit = false;
 FT_Library freetype_lib;
 
-Font::Font(std::string filename, shader::ShaderProgram & shader , int height)
+Font::Font(std::string filename, shader::ShaderProgram & shader, unsigned int height)
     : shader(shader), mesh(geometry::Plane({ 0, 0, 1 })) {
     if (!freetype_isinit) {
         if (FT_Init_FreeType(&freetype_lib)) {

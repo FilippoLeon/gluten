@@ -5,18 +5,12 @@
 
 #include "gluten/base/Application.hpp"
 #include "gluten/base/Window.hpp"
-#include "gluten/base/Color.hpp"
 
 #include "gluten/shader/Shader.hpp"
 #include "gluten/shader/Material.hpp"
 
 #include "gluten/geometry/Mesh.hpp"
 #include "gluten/geometry/Model.hpp"
-
-#include "gluten/texture/Texture.hpp"
-
-#include "gluten/camera/Camera.hpp"
-#include "gluten/camera/Light.hpp"
 
 #include "gluten/fonts/Font.hpp"
 
@@ -64,7 +58,6 @@ int main() {
     cube.rotation = glm::angleAxis(glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     cube.position = glm::vec3(1.f, 1.f, 0.f);
 
-    int time = 0;
     while (!window.ShouldClose()) {
         app.Update();
 
@@ -76,12 +69,12 @@ int main() {
         //cube.Draw(cam);
 
         float elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(app.elapsed).count() * 1e-6;
-        int fps = 1000. / elapsed;
+        int fps = (int) (1000. / elapsed);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         font.Draw(canvas_cam, "Debug: " + std::to_string(elapsed) + " ms (" + std::to_string(fps) + " FPS)", 
-                  gluten::base::Color(1., 0., 0.), { 10, 10 }, 1);
+                  gluten::base::Color(1.0f, 0.0f, 0.0f), { 10, 10 }, 1);
 
         window.SwapBuffers();
         app.PollEvents();

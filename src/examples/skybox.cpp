@@ -87,7 +87,6 @@ int main() {
     );
     floor.scale = glm::vec3(10.0f, 10.0f, 10.0f);
 
-    int time = 0;
     while (!window.ShouldClose()) {
         window.ProcessInput();
         window.Clear();
