@@ -77,7 +77,7 @@ public:
     DirectionalLight() {
         type = 1;
         //cam = std::make_shared<CameraPerspective>();
-        cam = std::make_shared<CameraOrthographic>(Rectangle(-10,-10,10,10), -50, 50);
+        cam = std::make_shared<CameraOrthographic>(Rectangle(-40,-40,40,40), 1, 50);
     }
 
     std::shared_ptr<Camera> GetCamera() {
@@ -90,12 +90,12 @@ public:
     }
 
     virtual void SetDirection(glm::vec3 direction) {
-        this->direction = direction;
+        cam->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0, 0, 0));
         //cam->rotation = glm::rotation(glm::vec3(1, 0, 0), direction);
         //cam->rotation = glm::rotation(glm::vec3(0, 0, 1), direction);
+        cam->rotation = glm::rotation(glm::vec3(0.0, 0, -1.0), direction);
+        this->direction = direction;
         //cam->rotation = glm::rotation(glm::vec3(1.0, 0.0, 0), direction);
-        //cam->rotation = glm::rotation(glm::vec3(1.0, 0.0, 0), direction);
-        cam->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0, 0, 0));
     }
 
     virtual glm::mat4 GetViewMatrix() {

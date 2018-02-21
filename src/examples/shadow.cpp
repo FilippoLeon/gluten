@@ -101,9 +101,9 @@ int main() {
     //dir_light->SetDirection(glm::vec3(0.0f, 1.0f, 0.0f));
     //dir_light->SetPosition(glm::vec3(0.1f, 1.0f, -0.5f));
     //dir_light->SetDirection(glm::vec3(-0.77f, -1.0f, 0.15f));
-    dir_light->SetPosition(glm::vec3(0, 9.0f, 0));
+    dir_light->SetPosition(glm::vec3(0, 19.0f, 0));
     //dir_light->SetDirection(glm::vec3(0, 0, -1.0));
-    dir_light->SetDirection(glm::vec3(0, 1.0, 0));
+    dir_light->SetDirection(glm::vec3(0.1, 1.0, 0.1));
 
     //std::shared_ptr<camera::PointLight> point_light 
     //    = std::make_shared<camera::PointLight>();
@@ -155,11 +155,15 @@ int main() {
         glm::radians(90.0f),
         glm::vec3(1.0f, 0.0f, 0.0f)
     );
-    floor.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+    floor.scale = glm::vec3(10.0f, 10.0f, 1);
 
     texture::Framebuffer shadow_framebuffer(2048, 2048);
+    //texture::Framebuffer shadow_framebuffer(1000,1000);
     std::shared_ptr<texture::ITexture> shadow_texture = 
         std::make_shared<texture::Texture<texture::Framebuffer>>(shadow_framebuffer);
+
+    shadow_texture->SetBorder(base::Color(1, 0, 0, 1));
+    shadow_texture->SetWrapMode(texture::ITexture::Axis::All, texture::ITexture::Wrap::BorderBorder);
 
     shader::VertexShader shadow_vs(app.GlutenRoot("/shader/examples/shadow.vs"));
     shader::FragmentShader shadow_fs(app.GlutenRoot("/shader/examples/shadow.fs"));
@@ -171,6 +175,8 @@ int main() {
 
     //cam.position -= glm::vec3(0, -10, -10);
     //dir_light->SetPosition(cam.position);
+
+    //glEnable(GL_CULL_FACE);
 
     int time = 0;
     while (!window.ShouldClose()) {
@@ -204,11 +210,13 @@ int main() {
         shadow_framebuffer.Bind();
         shadow_framebuffer.Clear((int) texture::Framebuffer::Bit::Depth);
 
+        glCullFace(GL_FRONT);
         shadow_shader.Use();
         light_cube.Draw(*light_cam, shadow_shader); // make sure to use use shadow shader
         cube.Draw(*light_cam, shadow_shader);
         floor.Draw(*light_cam, shadow_shader);
         cube2.Draw(*light_cam, shadow_shader);
+        glCullFace(GL_BACK);
 
         texture::Framebuffer::Unbind();
 
@@ -221,8 +229,8 @@ int main() {
         cube.Draw(cam);
         shadow_texture->Bind(2);
         cube2.Draw(cam);
-        shadow_texture->Bind(2);
-        cube3.Draw(cam);
+        //shadow_texture->Bind(2);
+        //cube3.Draw(cam);
         shadow_texture->Bind(2);
         floor.Draw(cam);
         //shadow_debug_shader.Use();
